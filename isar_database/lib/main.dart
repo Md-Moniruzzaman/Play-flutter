@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:isar_database/pages/add_student.dart';
+import 'package:isar_database/services/isar_services.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,13 +17,15 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(),
+      home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key});
+  MyHomePage({super.key});
+
+  final IsarServices isarServices = IsarServices();
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +38,7 @@ class MyHomePage extends StatelessWidget {
         child: Column(children: [
           Expanded(
             child: StreamBuilder(
+              stream: isarServices.listenToCourses(),
               builder: (context, AsyncSnapshot snapshot) {
                 if (snapshot.hasData) {}
                 return const Center(
@@ -50,7 +55,12 @@ class MyHomePage extends StatelessWidget {
                 child: const Text('Add Course'),
               ),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (context) => AddStudent(isarServices),
+                  );
+                },
                 child: const Text('Add Student'),
               ),
               ElevatedButton(
