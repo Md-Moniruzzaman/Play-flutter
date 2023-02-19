@@ -116,7 +116,11 @@ class _MyHomePageState extends State<MyHomePage> {
                         onPressed: () async {
                           Student student =
                               Student(name: _nameController.text, roll: 1);
-                          _onPressedSend(student, selectedId!);
+                          if (selectedId != null) {
+                            _onPressedSend(student, selectedId!);
+                          } else {
+                            _onPressedSend(student, selectedId ?? -1);
+                          }
                         },
                       )
                     ],
