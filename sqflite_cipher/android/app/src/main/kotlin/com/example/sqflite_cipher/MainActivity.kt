@@ -1,4 +1,4 @@
-package com.example.sqflite_cipher
+package com.example.scDtabase
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -25,6 +25,9 @@ class _MyHomePageState extends State<MyHomePage> {
       body: SafeArea(
         child: Stack(
           children: <Widget>[
+            ElevatedButton(
+                onPressed: () => DatabaseServices().getStudents(),
+                child: const Text('Database Test')),
             FutureBuilder(
                 future: DatabaseServices().getStudents(),
                 builder: (context, AsyncSnapshot<List<Student>> snapshpot) {
