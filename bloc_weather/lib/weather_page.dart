@@ -13,6 +13,7 @@ class WeatherPage extends StatefulWidget {
 class _WeatherPageState extends State<WeatherPage> {
   CounterBloc counterBloc = CounterBloc();
   WeatherBloc weatherBloc = WeatherBloc();
+  final cityNameCtrl = TextEditingController();
 
   @override
   void initState() {
@@ -21,6 +22,12 @@ class _WeatherPageState extends State<WeatherPage> {
         .add(const WeatherLoadedEvent(cityName: 'Dahaka'));
     BlocProvider.of<CounterBloc>(context)
         .add(const CounterIncreamentEvent(value: -1));
+  }
+
+  @override
+  void dispose() {
+    cityNameCtrl.dispose();
+    super.dispose();
   }
 
   @override
@@ -100,7 +107,7 @@ class _WeatherPageState extends State<WeatherPage> {
                   if (state is CounterLoadedState) {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Center(child: Text(state.value.toString())),
-                      duration: const Duration(seconds: 2),
+                      duration: const Duration(seconds: 1),
                       // action: SnackBarAction(
                       //   label: 'ACTION',
                       //   onPressed: () {},
@@ -116,8 +123,22 @@ class _WeatherPageState extends State<WeatherPage> {
                     child: const Text('listenr test')),
               ),
               const SizedBox(height: 10),
-              BlocBuilder<WeatherBloc, WeatherState>(
-                // bloc: weatherBloc,
+              BlocConsumer<WeatherBloc, WeatherState>(
+                listenWhen: (previous, current) => previous != current,
+                listener: (context, state) {
+                  if (state is WeatherLoadedState) {
+                    if (state.weather.tem > 30) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Center(child: Text('It\'s a hot day!')),
+                        duration: Duration(seconds: 2),
+                        // action: SnackBarAction(
+                        //   label: 'ACTION',
+                        //   onPressed: () {},
+                        // ),
+                      ));
+                    }
+                  }
+                },
                 buildWhen: (previous, current) => previous != current,
                 builder: (context, WeatherState state) {
                   if (state is WeatherInitial) {
@@ -137,7 +158,23 @@ class _WeatherPageState extends State<WeatherPage> {
                           const SizedBox(height: 10),
                           Text(state.weather.tem.toStringAsFixed(2)),
                           const SizedBox(height: 20),
-                          InputCityName()
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: TextFormField(
+                              controller: cityNameCtrl,
+                              autofocus: true,
+                              decoration: InputDecoration(
+                                labelText: 'City Name',
+                                hintText: 'Your city Name',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                              ),
+                              onChanged: (value) =>
+                                  BlocProvider.of<WeatherBloc>(context)
+                                      .add(WeatherLoadedEvent(cityName: value)),
+                            ),
+                          ),
                         ],
                       ),
                     );
@@ -166,7 +203,7 @@ class InputCityName extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       child: TextFormField(
         controller: cityNameCtrl,
-        autofocus: false,
+        autofocus: true,
         decoration: InputDecoration(
           labelText: 'City Name',
           hintText: 'Your city Name',
@@ -174,7 +211,7 @@ class InputCityName extends StatelessWidget {
             borderRadius: BorderRadius.circular(5),
           ),
         ),
-        onFieldSubmitted: (value) => BlocProvider.of<WeatherBloc>(context)
+        onChanged: (value) => BlocProvider.of<WeatherBloc>(context)
             .add(WeatherLoadedEvent(cityName: value)),
       ),
     );
