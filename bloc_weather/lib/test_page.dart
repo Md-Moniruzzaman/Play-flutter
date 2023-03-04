@@ -1,31 +1,34 @@
 import 'package:bloc_weather/bloc/counter_bloc.dart';
 import 'package:bloc_weather/bloc/weather_bloc.dart';
-import 'package:bloc_weather/test_page.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class WeatherPage extends StatefulWidget {
-  const WeatherPage({super.key});
+class TestPage extends StatefulWidget {
+  const TestPage({super.key, this.cityName, this.name});
+
+  final String? cityName;
+  final String? name;
+  static const routeName = '/testpage';
 
   @override
-  State<WeatherPage> createState() => _WeatherPageState();
+  State<TestPage> createState() => _TestPageState();
 }
 
-class _WeatherPageState extends State<WeatherPage> {
+class _TestPageState extends State<TestPage> {
   final GlobalKey<CurvedNavigationBarState> _bottomNavigationKey = GlobalKey();
   CounterBloc counterBloc = CounterBloc();
   WeatherBloc weatherBloc = WeatherBloc();
   final cityNameCtrl = TextEditingController();
 
-  int _page = 0;
+  int _page = 1;
   List<String> pagelist = ['home', 'add', 'Favourite', 'List', 'Compare'];
 
   @override
   void initState() {
     super.initState();
     BlocProvider.of<WeatherBloc>(context)
-        .add(const WeatherLoadedEvent(cityName: 'Dahaka'));
+        .add(WeatherLoadedEvent(cityName: widget.cityName!));
     BlocProvider.of<CounterBloc>(context)
         .add(const CounterIncreamentEvent(value: -1));
   }
@@ -38,12 +41,15 @@ class _WeatherPageState extends State<WeatherPage> {
 
   @override
   Widget build(BuildContext context) {
+    // final args = ModalRoute.of(context)!.settings.arguments as ScreenArguments;
+
     return Scaffold(
       // resizeToAvoidBottomInset: false,
-      appBar: AppBar(title: const Text('Weather'), centerTitle: true),
+      appBar:
+          AppBar(title: Text('Weather / ${widget.name}'), centerTitle: true),
       bottomNavigationBar: CurvedNavigationBar(
-        // key: _bottomNavigationKey,
-        index: 0,
+        key: _bottomNavigationKey,
+        index: 1,
         items: const <Widget>[
           Icon(Icons.home, size: 30),
           Icon(Icons.add, size: 30),
@@ -52,12 +58,8 @@ class _WeatherPageState extends State<WeatherPage> {
           Icon(Icons.compare_arrows, size: 30),
         ],
         onTap: (index) {
-          if (index == 1) {
-            Navigator.of(context).pushNamed('/testpage',
-                arguments: const TestPage(
-                  cityName: 'Barguan',
-                  name: 'Monir',
-                ));
+          if (index == 0) {
+            Navigator.of(context).pop();
             setState(() {
               _page = index;
             });
@@ -256,3 +258,10 @@ class _WeatherPageState extends State<WeatherPage> {
 //     );
 //   }
 // }
+
+class ScreenArguments {
+  final String cityName;
+  final String name;
+
+  ScreenArguments(this.cityName, this.name);
+}
