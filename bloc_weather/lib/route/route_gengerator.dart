@@ -7,7 +7,7 @@ class RoutteGenerator {
     //Getting argument passed in while calling Navigator.pushNamed
 
     switch (routeSettings.name) {
-      case '/':
+      case WeatherPage.routeName:
         return MaterialPageRoute(builder: (_) => const WeatherPage());
 
       case TestPage.routeName:
