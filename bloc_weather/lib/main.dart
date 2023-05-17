@@ -1,7 +1,7 @@
 import 'package:bloc_weather/bloc/counter_bloc.dart';
 import 'package:bloc_weather/bloc/weather_bloc.dart';
+import 'package:bloc_weather/main_page.dart';
 import 'package:bloc_weather/route/route_gengerator.dart';
-import 'package:bloc_weather/weather_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        initialRoute: WeatherPage.routeName,
+        initialRoute: MainPage.routeName,
         onGenerateRoute: RoutteGenerator.generateRoute,
       ),
     );

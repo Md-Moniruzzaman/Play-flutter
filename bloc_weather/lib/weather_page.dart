@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class WeatherPage extends StatefulWidget {
   const WeatherPage({super.key});
 
-  static const routeName = '/';
+  static const routeName = '/weatherPage';
 
   @override
   State<WeatherPage> createState() => _WeatherPageState();

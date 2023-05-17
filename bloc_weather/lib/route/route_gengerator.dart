@@ -1,3 +1,4 @@
+import 'package:bloc_weather/main_page.dart';
 import 'package:bloc_weather/test_page.dart';
 import 'package:bloc_weather/weather_page.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,9 @@ class RoutteGenerator {
     //Getting argument passed in while calling Navigator.pushNamed
 
     switch (routeSettings.name) {
+      case MainPage.routeName:
+        return MaterialPageRoute(builder: (_) => const MainPage());
+
       case WeatherPage.routeName:
         return MaterialPageRoute(builder: (_) => const WeatherPage());
 
