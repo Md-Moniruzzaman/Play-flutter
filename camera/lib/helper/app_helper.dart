@@ -41,15 +41,17 @@ class AppHelper {
   static Future<File> compress({
     required File image,
     int quality = 85,
-    int targetH = 870,
-    int targetW = 450,
+    // int targetH = 870,
+    // int targetW = 450,
     int percentage = 70,
   }) async {
-    var path = await FlutterNativeImage.compressImage(image.absolute.path,
-        quality: quality,
-        percentage: percentage,
-        targetHeight: targetW,
-        targetWidth: targetH);
+    var path = await FlutterNativeImage.compressImage(
+      image.absolute.path,
+      quality: quality,
+      percentage: percentage,
+      // targetHeight: targetW,
+      // targetWidth: targetH,
+    );
     return path;
   }
 }
