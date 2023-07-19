@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.whatsapp_test_api">
+    <uses-permission android:name="android.permission.INTERNET" />
    <application
         android:label="whatsapp_test_api"
         android:name="${applicationName}"
@@ -23,6 +24,9 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="whatsapp" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
