@@ -68,13 +68,18 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return;
   }
 
+  double distance(int steps) {
+    double result = steps / 1408;
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Pedometer Example'),
+          title: const Text('Pedometer'),
         ),
         body: Center(
           child: Column(
@@ -89,7 +94,20 @@ class _MyAppState extends State<MyApp> {
                 style: const TextStyle(fontSize: 40),
               ),
               const Divider(
-                height: 100,
+                height: 30,
+                thickness: 0,
+                color: Colors.white,
+              ),
+              const Text(
+                'Distance',
+                style: TextStyle(fontSize: 30),
+              ),
+              Text(
+                '${distance(int.parse(_steps == '?' || _steps == 'Step Count not\navailable' ? '0' : _steps)).toStringAsFixed(2)} km',
+                style: const TextStyle(fontSize: 20),
+              ),
+              const Divider(
+                height: 30,
                 thickness: 0,
                 color: Colors.white,
               ),
