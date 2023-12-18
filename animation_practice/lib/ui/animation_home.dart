@@ -65,6 +65,7 @@ class _AnimationHomeState extends State<AnimationHome>
             ElevatedButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/socket');
+
                   // Navigator.push(context,
                   //     MaterialPageRoute(builder: (_) => const Socket()));
                 },
