@@ -1,4 +1,5 @@
 import 'package:animation_practice/ui/list_view_animaiton.dart';
+import 'package:animation_practice/ui/socket.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -45,17 +46,31 @@ class _AnimationHomeState extends State<AnimationHome>
         title: const Text('Animation Home'),
       ),
       body: SafeArea(
-          child: Column(
-        children: [
-          ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const ListViewAnimation()));
-              },
-              child: const Text('List View'))
-        ],
+          child: Container(
+        margin: const EdgeInsets.all(8.0),
+        // color: Colors.amber,
+        width: double.infinity,
+        child: Wrap(
+          spacing: 8.0,
+          children: [
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/animatedListView');
+                  // Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //         builder: (_) => const ListViewAnimation()));
+                },
+                child: const Text('List View')),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/socket');
+                  // Navigator.push(context,
+                  //     MaterialPageRoute(builder: (_) => const Socket()));
+                },
+                child: const Text('Web Socket'))
+          ],
+        ),
       )
 
           // AnimatedBuilder(

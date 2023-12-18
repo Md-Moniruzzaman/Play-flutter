@@ -11,8 +11,8 @@ class ListViewAnimation extends StatefulWidget {
 class _ListViewAnimationState extends State<ListViewAnimation>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  // late Animation<double> _animation;
-  late Animation<Offset> _animation;
+  late Animation<double> _animation;
+  // late Animation<Offset> _animation;
 
   final List<String> items = List.generate(100, (index) => 'Item $index');
 
@@ -25,10 +25,10 @@ class _ListViewAnimationState extends State<ListViewAnimation>
       duration: const Duration(seconds: 1),
     );
 
-    // _animation = Tween<double>(begin: 2.5, end: .50).animate(_controller);
-    _animation = Tween<Offset>(
-            begin: const Offset(1.0, 0.0), end: const Offset(0.0, 0.0))
-        .animate(_controller);
+    _animation = Tween<double>(begin: 2.0, end: 1.00).animate(_controller);
+    // _animation = Tween<Offset>(
+    //         begin: const Offset(1.0, 0.0), end: const Offset(0.0, 0.0))
+    //     .animate(_controller);
 
     // Start the animation
     _controller.forward();
@@ -54,8 +54,8 @@ class _ListViewAnimationState extends State<ListViewAnimation>
             return AnimatedBuilder(
               animation: _animation,
               builder: (context, child) {
-                return SlideTransition(
-                  position: _animation,
+                return SizeTransition(
+                  sizeFactor: _animation,
                   child: ListTile(
                     title: Text(items[index]),
                   ),

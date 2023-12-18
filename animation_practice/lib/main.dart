@@ -1,4 +1,6 @@
 import 'package:animation_practice/ui/animation_home.dart';
+import 'package:animation_practice/ui/list_view_animaiton.dart';
+import 'package:animation_practice/ui/socket.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -26,7 +28,13 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const AnimationHome(),
+      // home: const AnimationHome(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const AnimationHome(),
+        '/animatedListView': (contex) => const ListViewAnimation(),
+        '/socket': (context) => const Socket()
+      },
     );
   }
 }
