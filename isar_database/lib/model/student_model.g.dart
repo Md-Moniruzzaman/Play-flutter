@@ -13,36 +13,36 @@ extension GetStudentCollection on Isar {
   IsarCollection<Student> get students => this.collection();
 }
 
-const StudentSchema = CollectionSchema(
-  name: r'Student',
-  id: -252783119861727542,
-  properties: {
-    r'name': PropertySchema(
-      id: 0,
-      name: r'name',
-      type: IsarType.string,
-    )
-  },
-  estimateSize: _studentEstimateSize,
-  serialize: _studentSerialize,
-  deserialize: _studentDeserialize,
-  deserializeProp: _studentDeserializeProp,
-  idName: r'id',
-  indexes: {},
-  links: {
-    r'courses': LinkSchema(
-      id: 4981409246323567500,
-      name: r'courses',
-      target: r'Course',
-      single: false,
-    )
-  },
-  embeddedSchemas: {},
-  getId: _studentGetId,
-  getLinks: _studentGetLinks,
-  attach: _studentAttach,
-  version: '3.0.5',
-);
+// const StudentSchema = CollectionSchema(
+//   name: r'Student',
+//   id: -252783119861727542,
+//   properties: {
+//     r'name': PropertySchema(
+//       id: 0,
+//       name: r'name',
+//       type: IsarType.string,
+//     )
+//   },
+//   estimateSize: _studentEstimateSize,
+//   serialize: _studentSerialize,
+//   deserialize: _studentDeserialize,
+//   deserializeProp: _studentDeserializeProp,
+//   idName: r'id',
+//   indexes: {},
+//   links: {
+//     r'courses': LinkSchema(
+//       id: 4981409246323567500,
+//       name: r'courses',
+//       target: r'Course',
+//       single: false,
+//     )
+//   },
+//   embeddedSchemas: {},
+//   getId: _studentGetId,
+//   getLinks: _studentGetLinks,
+//   attach: _studentAttach,
+//   version: '3.0.5',
+// );
 
 int _studentEstimateSize(
   Student object,

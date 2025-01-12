@@ -62,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
               style: TextStyle(color: Colors.white, fontSize: 14),
             ),
             badgeColor: Colors.red,
-            badgeRadius: BorderRadius.circular(50),
+            badgePadding: const EdgeInsets.all(50),
             showBadge: true,
             icon: const Icon(
               Icons.house_outlined,
@@ -121,7 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
           // for bublebar option
 
-          barStyle: BubbleBarStyle.horizotnal,
+          barStyle: BubbleBarStyle.horizontal,
           // barStyle: BubbleBarStyle.vertical,
           // bubbleFillStyle: BubbleFillStyle.fill,
           bubbleFillStyle: BubbleFillStyle.outlined,

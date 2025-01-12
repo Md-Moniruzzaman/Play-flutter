@@ -8,7 +8,7 @@ import 'package:isar_database/model/teacher_model.dart';
 class IsarServices {
   late Future<Isar> db;
   IsarServices() {
-    db = openDb();
+    // db = openDb();
   }
 
   Future<void> saveCourse(Course newCourse) async {
@@ -41,15 +41,15 @@ class IsarServices {
     await isar.writeTxn(() => isar.clear());
   }
 
-  Future<Isar> openDb() async {
-    if (Isar.instanceNames.isEmpty) {
-      return await Isar.open([TeacherSchema, StudentSchema, CourseSchema],
-          inspector: true,
-          directory:
-              Directory('/storage/emulated/0/Download/sql_db_folder2/isardb')
-                  .path);
-    }
+  // Future<Isar> openDb() async {
+  //   if (Isar.instanceNames.isEmpty) {
+  //     return await Isar.open([TeacherSchema, StudentSchema, CourseSchema],
+  //         inspector: true,
+  //         directory:
+  //             Directory('/storage/emulated/0/Download/sql_db_folder2/isardb')
+  //                 .path);
+  //   }
 
-    return Future.value(Isar.getInstance());
-  }
+  //   return Future.value(Isar.getInstance());
+  // }
 }

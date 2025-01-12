@@ -13,44 +13,44 @@ extension GetCourseCollection on Isar {
   IsarCollection<Course> get courses => this.collection();
 }
 
-const CourseSchema = CollectionSchema(
-  name: r'Course',
-  id: 1,
-  properties: {
-    r'title': PropertySchema(
-      id: 0,
-      name: r'title',
-      type: IsarType.string,
-    )
-  },
-  estimateSize: _courseEstimateSize,
-  serialize: _courseSerialize,
-  deserialize: _courseDeserialize,
-  deserializeProp: _courseDeserializeProp,
-  idName: r'id',
-  indexes: {},
-  links: {
-    r'teacher': LinkSchema(
-      id: 2,
-      name: r'teacher',
-      target: r'Teacher',
-      single: true,
-      linkName: r'course',
-    ),
-    r'students': LinkSchema(
-      id: 3,
-      name: r'students',
-      target: r'Student',
-      single: false,
-      linkName: r'courses',
-    )
-  },
-  embeddedSchemas: {},
-  getId: _courseGetId,
-  getLinks: _courseGetLinks,
-  attach: _courseAttach,
-  version: '3.0.5',
-);
+// const CourseSchema = CollectionSchema(
+//   name: r'Course',
+//   id: 1,
+//   properties: {
+//     r'title': PropertySchema(
+//       id: 0,
+//       name: r'title',
+//       type: IsarType.string,
+//     )
+//   },
+//   estimateSize: _courseEstimateSize,
+//   serialize: _courseSerialize,
+//   deserialize: _courseDeserialize,
+//   deserializeProp: _courseDeserializeProp,
+//   idName: r'id',
+//   indexes: {},
+//   links: {
+//     r'teacher': LinkSchema(
+//       id: 2,
+//       name: r'teacher',
+//       target: r'Teacher',
+//       single: true,
+//       linkName: r'course',
+//     ),
+//     r'students': LinkSchema(
+//       id: 3,
+//       name: r'students',
+//       target: r'Student',
+//       single: false,
+//       linkName: r'courses',
+//     )
+//   },
+//   embeddedSchemas: {},
+//   getId: _courseGetId,
+//   getLinks: _courseGetLinks,
+//   attach: _courseAttach,
+//   version: '3.0.5',
+// );
 
 int _courseEstimateSize(
   Course object,
