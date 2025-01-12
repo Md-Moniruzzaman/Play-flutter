@@ -1,3 +1,4 @@
+import 'package:disable_home_back_button/custom_show_dialog.dart';
 import 'package:disable_home_back_button/timed_page.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -71,7 +72,6 @@ class AppCloseExample extends StatelessWidget {
     );
   }
 
-  
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -94,6 +94,12 @@ class AppCloseExample extends StatelessWidget {
                 onPressed: () => Navigator.push(context,
                     MaterialPageRoute(builder: (_) => const TimedPage())),
                 child: const Text("Timed Page"),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => // Show the reusable dialog
+                    AddToCartDialog.show(context),
+                child: const Text("Show dialog Test"),
               ),
             ],
           ),
