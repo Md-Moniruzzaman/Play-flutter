@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:serial_com/wizar_pos_test.dart';
+import 'package:serial_com/InitUsb.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,8 +17,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      // home: const InitUsb(),
-      home: const SerialDemoScreen(),
+      home: const InitUsb(),
+      // home: const SerialDemoScreen(),
     );
   }
 }
