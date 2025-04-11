@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:serial_com/InitUsb.dart';
+import 'package:serial_com/payment_pos_com_windows.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,7 +17,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const InitUsb(),
+      // home: const InitUsb(),
+      home: const PymentPostComWin(),
       // home: const SerialDemoScreen(),
     );
   }
