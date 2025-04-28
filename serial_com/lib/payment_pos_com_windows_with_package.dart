@@ -49,32 +49,44 @@ class _PymentPostComWinWithPackageState extends State<PymentPostComWinWithPackag
       return;
     }
 
+    WinPaymentPosSerialCommunitaion().disconnectDevice(port);
     // Close previous connection if any
-    port?.close();
+    // port?.close();
     logOutput += "Previous connection closed.\n";
+    port = await WinPaymentPosSerialCommunitaion().connectDevice(selectedPort, 115200);
+    setState(() {
+      logOutput += "Connecting to $selectedPort... ${port!.isOpen}\n";
+    });
+    // port = SerialPort(selectedPort!);
 
-    port = SerialPort(selectedPort!);
+    // port!.config = SerialPortConfig()
+    //   ..baudRate = 115200
+    //   ..bits = 8
+    //   ..stopBits = 1
+    //   ..parity = SerialPortParity.none
+    //   ..rts = SerialPortRts.on
+    //   ..dtr = SerialPortDtr.on;
 
-    port!.config = SerialPortConfig()
-      ..baudRate = 115200
-      ..bits = 8
-      ..stopBits = 1
-      ..parity = SerialPortParity.none
-      ..rts = SerialPortRts.on
-      ..dtr = SerialPortDtr.on;
+    // if (!port!.openReadWrite()) {
+    //   logOutput += "Failed to open port $selectedPort. Error: ${SerialPort.lastError}\n";
+    //   setState(() {});
+    //   return;
+    // }
 
-    if (!port!.openReadWrite()) {
-      logOutput += "Failed to open port $selectedPort. Error: ${SerialPort.lastError}\n";
-      setState(() {});
-      return;
-    }
-
-    print(port!.isOpen);
+    // print(port!.isOpen);
 
     logOutput += "Opened port $selectedPort\n";
 
-    _reader = SerialPortReader(port!);
-    _listenForData();
+    WinPaymentPosSerialCommunitaion().listenForData(port).then((value) {
+      logOutput += "Listening for data...\n";
+      setState(() {});
+    }).catchError((error) {
+      logOutput += "Error: $error\n";
+      setState(() {});
+    });
+
+    // _reader = SerialPortReader(port!);
+    // _listenForData();
     // _reader!.stream.listen((data) {
     //   receivedData = String.fromCharCodes(data);
     //   logOutput += "Received: $receivedData\n";
@@ -83,80 +95,80 @@ class _PymentPostComWinWithPackageState extends State<PymentPostComWinWithPackag
     setState(() {});
   }
 
-  void _listenForData() {
-    if (port == null || !port!.isOpen) {
-      logOutput += "Error: Serial port is not open.\n";
-      setState(() {});
-      return;
-    }
+  // void _listenForData() {
+  //   if (port == null || !port!.isOpen) {
+  //     logOutput += "Error: Serial port is not open.\n";
+  //     setState(() {});
+  //     return;
+  //   }
 
-    List<int> buffer = [];
-    String recHex = '';
-    String jsonString = '';
-    String byteData = '';
-    Map<String, dynamic> cardRes = {};
+  //   List<int> buffer = [];
+  //   String recHex = '';
+  //   String jsonString = '';
+  //   String byteData = '';
+  //   Map<String, dynamic> cardRes = {};
 
-    _subscription = _reader!.stream.listen((Uint8List data) {
-      buffer.addAll(data); // Add incoming data to the buffer
-      byteData = buffer.toString();
-      receivedData = String.fromCharCodes(data);
+  //   _subscription = _reader!.stream.listen((Uint8List data) {
+  //     buffer.addAll(data); // Add incoming data to the buffer
+  //     byteData = buffer.toString();
+  //     receivedData = String.fromCharCodes(data);
 
-      if (buffer.isNotEmpty && buffer.first == 0x06) {
-        print("Received ACK (0x06) from device");
-        recHex = buffer.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
-        buffer.removeAt(0); // Remove the ACK from the buffer
-        return; // Exit early as we only need to process the ACK
-      }
+  //     if (buffer.isNotEmpty && buffer.first == 0x06) {
+  //       print("Received ACK (0x06) from device");
+  //       recHex = buffer.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
+  //       buffer.removeAt(0); // Remove the ACK from the buffer
+  //       return; // Exit early as we only need to process the ACK
+  //     }
 
-      while (buffer.length >= 4) {
-        int startIdx = buffer.indexOf(0x02); // Find STX (0x02)
-        int endIdx = buffer.indexOf(0x03); // Find ETX (0x03)
+  //     while (buffer.length >= 4) {
+  //       int startIdx = buffer.indexOf(0x02); // Find STX (0x02)
+  //       int endIdx = buffer.indexOf(0x03); // Find ETX (0x03)
 
-        if (startIdx != -1 && endIdx != -1 && endIdx > startIdx) {
-          final lengthBytes = buffer.sublist(startIdx + 1, startIdx + 3);
-          final dataLength = (lengthBytes[0] << 8) | lengthBytes[1];
+  //       if (startIdx != -1 && endIdx != -1 && endIdx > startIdx) {
+  //         final lengthBytes = buffer.sublist(startIdx + 1, startIdx + 3);
+  //         final dataLength = (lengthBytes[0] << 8) | lengthBytes[1];
 
-          if (buffer.length >= startIdx + 3 + dataLength + 1) {
-            final completeMessage = buffer.sublist(startIdx + 3, startIdx + 3 + dataLength);
-            final hexString = completeMessage.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
-            recHex = hexString;
+  //         if (buffer.length >= startIdx + 3 + dataLength + 1) {
+  //           final completeMessage = buffer.sublist(startIdx + 3, startIdx + 3 + dataLength);
+  //           final hexString = completeMessage.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
+  //           recHex = hexString;
 
-            try {
-              jsonString = utf8.decode(completeMessage, allowMalformed: true);
-              final Map<String, dynamic> jsonMessage = json.decode(jsonString);
-              print('Decoded JSON: $jsonMessage');
-              cardRes = jsonMessage;
-              receivedData += jsonString;
-              print(jsonString);
-              setState(() {});
+  //           try {
+  //             jsonString = utf8.decode(completeMessage, allowMalformed: true);
+  //             final Map<String, dynamic> jsonMessage = json.decode(jsonString);
+  //             print('Decoded JSON: $jsonMessage');
+  //             cardRes = jsonMessage;
+  //             receivedData += jsonString;
+  //             print(jsonString);
+  //             setState(() {});
 
-              /// Check Amount
+  //             /// Check Amount
 
-              if (cardRes['RespCode'] == "00") {
-                _sendAck();
-                setState(() {});
-              } else {
-                _sendAck();
+  //             if (cardRes['RespCode'] == "00") {
+  //               _sendAck();
+  //               setState(() {});
+  //             } else {
+  //               _sendAck();
 
-                setState(() {});
-              }
-              setState(() {});
-            } catch (e) {
-              print('Error parsing JSON: $e');
-            }
+  //               setState(() {});
+  //             }
+  //             setState(() {});
+  //           } catch (e) {
+  //             print('Error parsing JSON: $e');
+  //           }
 
-            buffer.removeRange(0, startIdx + 3 + dataLength + 1);
-          }
-        } else {
-          break; // Wait for more data
-        }
-      }
-    }, onError: (error) {
-      print("Error in serial port listener: $error");
-    }, onDone: () {
-      print("Serial port listener closed.");
-    });
-  }
+  //           buffer.removeRange(0, startIdx + 3 + dataLength + 1);
+  //         }
+  //       } else {
+  //         break; // Wait for more data
+  //       }
+  //     }
+  //   }, onError: (error) {
+  //     print("Error in serial port listener: $error");
+  //   }, onDone: () {
+  //     print("Serial port listener closed.");
+  //   });
+  // }
 
   Future<void> _sendAck() async {
     port!.write(Uint8List.fromList([0x06])); // Send ACK
@@ -296,6 +308,11 @@ class _PymentPostComWinWithPackageState extends State<PymentPostComWinWithPackag
             ),
             const SizedBox(height: 20),
             ElevatedButton(
+              // onPressed: () {
+              //   WinPaymentPosSerialCommunitaion()
+              //       .sendRequest(port, "hsldks3478257", "hsl864s3478257", "01645820113", 100.00);
+              // },
+
               onPressed: sendData,
               child: const Text("Send Data"),
             ),

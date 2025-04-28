@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_responsive_root/widgets/drawer_widget.dart';
+import 'package:flutter_responsive_root/widgets/place_gallery_widget.dart';
 import 'package:flutter_responsive_root/widgets/responsive_widget.dart';
 
 class HomePage extends StatelessWidget {
@@ -6,14 +8,17 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  ResponsiveWidget(mobile: buildMobile(), tablet: buildTablet(), desktop: buildDesktop());
+    final bool isMobile = ResponsiveWidget.isMobile(context);
+    return Scaffold(
+      appBar: AppBar(title: Text('Tour App')),
+      drawer: isMobile ? Drawer(child: DrawerWidget()) : null,
+      body: ResponsiveWidget(mobile: buildMobile(), tablet: buildTablet(), desktop: buildDesktop()),
+    );
   }
 
-  Widget buildMobile() => Container(color: Colors.green, child: const Center(child: Text('Mobile')));
+  Widget buildMobile() => PlaceGalleryWidget();
 
   Widget buildTablet() => Container(color: Colors.red, child: const Center(child: Text('Tablet')));
-  
+
   Widget buildDesktop() => Container(color: Colors.blue, child: const Center(child: Text('Desktop')));
-
-
 }

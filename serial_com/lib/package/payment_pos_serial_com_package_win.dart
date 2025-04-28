@@ -21,59 +21,56 @@ class WinPaymentPosSerialCommunitaion {
   // }
 
   static getPorts() {
-    return  SerialPort.availablePorts;
+    return SerialPort.availablePorts;
   }
 
   static getDeviceInfo() {}
   static getDeviceStatus() {}
 
-  Future<String> connectDevice(String? selectedPort, int baudRate) async {
+  Future<SerialPort?> connectDevice(String? selectedPort, int baudRate) async {
     if (selectedPort != null) {
       try {
         _port = SerialPort(selectedPort);
 
         if (_port != null) {
-          // Attempt to open the port
-          bool isPortOpen = _port!.isOpen;
-          if (isPortOpen) {
-            // Set the port parameters (baud rate, data bits, stop bits, parity)
-            // Note: You can adjust these parameters based on your requirements
-            _port!.config = SerialPortConfig()
-              ..baudRate = 115200
-              ..bits = 8
-              ..stopBits = 1
-              ..parity = SerialPortParity.none
-              ..rts = SerialPortRts.on
-              ..dtr = SerialPortDtr.on;
-            // You can now use the port to send and receive data
-            // For example, you can write data to the port like this:
-            return 'connected';
+          final config = _port!.config;
+          config.baudRate = baudRate; // use passed baudRate
+          config.bits = 8;
+          config.stopBits = 1;
+          config.parity = SerialPortParity.none;
+          config.rts = SerialPortRts.on;
+          config.dtr = SerialPortDtr.on;
+
+          _port!.config = config;
+
+          // 👇 Open the port for write or read/write
+          if (_port!.openReadWrite()) {
+            print("✅ Port opened: ${_port!.isOpen}");
+            return _port;
           } else {
-            // Handle the case where the port could not be opened
-            // You may want to close the port if it was opened successfully before
-            return 'Failed to open port.';
+            print("❌ Failed to open port: ${SerialPort.lastError}");
           }
         } else {
-          // Handle the case where the port could not be created
-          return 'Failed to create port.';
+          print('Failed to create port.');
         }
       } catch (e) {
-        // Handle any exceptions that may occur during the connection process
-        return 'Error: $e';
+        print('❌ Error connecting to device: $e');
       }
     } else {
-      // Handle the case where the device is null (not found)
-      return 'Device not found.';
+      print('⚠️ Device not found.');
     }
+
+    return null;
   }
 
-  disconnectDevice() {
+  disconnectDevice(SerialPort? port) async {
+    print(port?.isOpen);
     // Close the port if it was opened successfully
-    _port?.close();
-    _port = null; // Set the port to null after closing it
+    port?.close();
+    port = null; // Set the port to null after closing it
   }
 
-  Future<void> sendRequest(String sysTrace, String sysSN, String cusPhoneNo, double amount) async {
+  Future<void> sendRequest(SerialPort? port, String sysTrace, String sysSN, String cusPhoneNo, double amount) async {
     final String orderAmountStr = amount.toStringAsFixed(2); // Make sure always have 2 decimal point in Order Amount
 
     final String removedDecPointFromOrderAmount =
@@ -84,12 +81,10 @@ class WinPaymentPosSerialCommunitaion {
       "SysTrace": sysTrace,
       "SysSN": sysSN,
       "TransType": "3",
-      "TransAmount": removedDecPointFromOrderAmount,
-      "PhoneNum": cusPhoneNo,
+      "TransAmount": removedDecPointFromOrderAmount
     };
 
-    // paymentLog(theNewOrder);
-
+    // "PhoneNum": cusPhoneNo,
     // Encode JSON data to bytes
     final dataBytes = utf8.encode(json.encode(requestData));
     final dataLength = dataBytes.length;
@@ -106,24 +101,23 @@ class WinPaymentPosSerialCommunitaion {
       ...dataBytes,
       0x03, // ETX
     ];
-    // final hexString =
-    //     message.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
-    // print(hexString);
+    final hexString = message.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
+    print(hexString);
     // Convert to Uint8List for transmission
     final messageBytes = Uint8List.fromList(message);
 
-    _port!.write(messageBytes);
+    port!.write(messageBytes);
   }
 
-  Future senAck() async {
+  Future senAck(SerialPort? port) async {
     // Send an acknowledgment byte (0x06) to the device
     // This is just an example; you can modify it based on your protocol
-    _port!.write(Uint8List.fromList([0x06]));
+    port!.write(Uint8List.fromList([0x06]));
   }
 
-  Future<dynamic> listenForData() async {
+  Future<dynamic> listenForData(SerialPort? port) async {
     List<int> buffer = [];
-
+    _reader = SerialPortReader(port!);
     _subscription = _reader!.stream.listen((Uint8List data) {
       buffer.addAll(data); // Add incoming data to the buffer
 
@@ -269,5 +263,4 @@ class WinPaymentPosSerialCommunitaion {
     }
     return {}; // Return an empty map if no complete message is found
   }
-
 }
