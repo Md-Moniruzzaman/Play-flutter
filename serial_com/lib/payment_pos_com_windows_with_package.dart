@@ -77,15 +77,17 @@ class _PymentPostComWinWithPackageState extends State<PymentPostComWinWithPackag
 
     logOutput += "Opened port $selectedPort\n";
 
-    WinPaymentPosSerialCommunitaion().listenForData(port).then((value) {
-      logOutput += "Listening for data...\n";
-      setState(() {});
-    }).catchError((error) {
-      logOutput += "Error: $error\n";
-      setState(() {});
-    });
+    // WinPaymentPosSerialCommunitaion().listenForData(port).then((value) {
+    //   logOutput += "Listening for data...\n";
+    //   logOutput += "Received: $value\n";
+    //   setState(() {});
+    // }).catchError((error) {
+    //   logOutput += "Error: $error\n";
+    //   setState(() {});
+    // });
 
     // _reader = SerialPortReader(port!);
+    _listener();
     // _listenForData();
     // _reader!.stream.listen((data) {
     //   receivedData = String.fromCharCodes(data);
@@ -93,6 +95,32 @@ class _PymentPostComWinWithPackageState extends State<PymentPostComWinWithPackag
     // });
 
     setState(() {});
+  }
+
+  void _listener() {
+    if (port == null || !port!.isOpen) {
+      logOutput += "Error: Serial port is not open.\n";
+      setState(() {});
+      return;
+    }
+    List<int> buffer = [];
+    _reader = SerialPortReader(port!);
+    _reader!.stream.listen((data) {
+      buffer.addAll(data); // Add incoming data to the buffer
+      // receivedData = String.fromCharCodes(data);
+      final retData = WinPaymentPosSerialCommunitaion().getJsonData(buffer);
+      if (retData != {} && retData["ack"] == null) {
+        receivedData = retData.toString();
+        WinPaymentPosSerialCommunitaion().senAck(port);
+      } else {
+        receivedData = "No data received";
+      }
+      // logOutput += "Received: $retData\n";
+      setState(() {});
+    }, onError: (error) {
+      logOutput += "Error: $error\n";
+      setState(() {});
+    });
   }
 
   // void _listenForData() {
@@ -170,69 +198,69 @@ class _PymentPostComWinWithPackageState extends State<PymentPostComWinWithPackag
   //   });
   // }
 
-  Future<void> _sendAck() async {
-    port!.write(Uint8List.fromList([0x06])); // Send ACK
-  }
+  // Future<void> _sendAck() async {
+  //   port!.write(Uint8List.fromList([0x06])); // Send ACK
+  // }
 
-  void sendData() {
-    if (port!.isOpen == false) {
-      logOutput += "Port is not open. Cannot send data.\n";
-      setState(() {});
-      return;
-    }
+  // void sendData() {
+  //   if (port!.isOpen == false) {
+  //     logOutput += "Port is not open. Cannot send data.\n";
+  //     setState(() {});
+  //     return;
+  //   }
 
-    try {
-      // JSON data to be sent
-      final Map<String, dynamic> requestData = {
-        "SysTrace": _sysTraceController.text,
-        "SysSN": _sysSNController.text,
-        "TransType": _transTypeController.text,
-        "TransAmount": _transAmountController.text
-      };
+  //   try {
+  //     // JSON data to be sent
+  //     final Map<String, dynamic> requestData = {
+  //       "SysTrace": _sysTraceController.text,
+  //       "SysSN": _sysSNController.text,
+  //       "TransType": _transTypeController.text,
+  //       "TransAmount": _transAmountController.text,
+  //     };
 
-      // final Map<String, dynamic> requestData = {
-      //   "SysTrace": _sysTraceController.text,
-      //   "SysSN": _sysSNController.text,
-      //   "TransType": _transTypeController.text,
-      //   "TransAmount": _transAmountController.text,
-      //   "PhoneNum": "01645820113"
-      // };
+  //     // final Map<String, dynamic> requestData = {
+  //     //   "SysTrace": _sysTraceController.text,
+  //     //   "SysSN": _sysSNController.text,
+  //     //   "TransType": _transTypeController.text,
+  //     //   "TransAmount": _transAmountController.text,
+  //     //   "PhoneNum": "01645820113"
+  //     // };
 
-      // Encode JSON data to bytes
-      final Uint8List dataBytes = utf8.encode(json.encode(requestData));
-      final int dataLength = dataBytes.length;
+  //     // Encode JSON data to bytes
+  //     final Uint8List dataBytes = utf8.encode(json.encode(requestData));
+  //     final int dataLength = dataBytes.length;
 
-      // Calculate length in high and low bytes
-      final int lengthHigh = (dataLength >> 8) & 0xFF;
-      final int lengthLow = dataLength & 0xFF;
+  //     // Calculate length in high and low bytes
+  //     final int lengthHigh = (dataLength >> 8) & 0xFF;
+  //     final int lengthLow = dataLength & 0xFF;
 
-      // Construct the message (STX, Length, Data, ETX)
-      final message = <int>[
-        0x02, // STX
-        lengthHigh,
-        lengthLow,
-        ...dataBytes,
-        0x03, // ETX
-      ];
+  //     // Construct the message (STX, Length, Data, ETX)
+  //     final message = <int>[
+  //       0x02, // STX
+  //       lengthHigh,
+  //       lengthLow,
+  //       ...dataBytes,
+  //       0x03, // ETX
+  //     ];
 
-      final messageBytes = Uint8List.fromList(message);
+  //     final messageBytes = Uint8List.fromList(message);
 
-      // Convert message to hex for logging/debugging
-      final String hexString = messageBytes.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
-      logOutput += "Sending: $hexString\n";
+  //     // Convert message to hex for logging/debugging
+  //     final String hexString = messageBytes.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
+  //     logOutput += "Sending: $hexString\n";
 
-      print(messageBytes);
-      print(hexString);
+  //     print(messageBytes);
+  //     print(hexString);
 
-      // Send data to the serial port
-      port!.write(messageBytes);
-      logOutput += "Data sent successfully.\n";
-    } catch (e) {
-      logOutput += "Error sending data: $e\n";
-    }
+  //     // Send data to the serial port
+  //     port!.write(messageBytes);
+  //     logOutput += "Data sent successfully.\n";
+  //   } catch (e) {
+  //     logOutput += "Error sending data: $e\n";
+  //   }
 
-    setState(() {});
-  }
+  //   setState(() {});
+  // }
 
   @override
   void dispose() {
@@ -308,12 +336,12 @@ class _PymentPostComWinWithPackageState extends State<PymentPostComWinWithPackag
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              // onPressed: () {
-              //   WinPaymentPosSerialCommunitaion()
-              //       .sendRequest(port, "hsldks3478257", "hsl864s3478257", "01645820113", 100.00);
-              // },
+              onPressed: () {
+                WinPaymentPosSerialCommunitaion()
+                    .sendRequest(port, "hsldks3478257", "hsl864s3478257", "01645820113", 100.00);
+              },
 
-              onPressed: sendData,
+              // onPressed: sendData,
               child: const Text("Send Data"),
             ),
             const SizedBox(height: 16),

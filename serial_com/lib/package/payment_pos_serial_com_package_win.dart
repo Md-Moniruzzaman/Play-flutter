@@ -27,6 +27,8 @@ class WinPaymentPosSerialCommunitaion {
   static getDeviceInfo() {}
   static getDeviceStatus() {}
 
+  // Function to connect to the device
+  // This function takes the selected port and baud rate as parameters
   Future<SerialPort?> connectDevice(String? selectedPort, int baudRate) async {
     if (selectedPort != null) {
       try {
@@ -63,6 +65,8 @@ class WinPaymentPosSerialCommunitaion {
     return null;
   }
 
+  // Function to disconnect the device
+  // This function closes the port and sets it to null
   disconnectDevice(SerialPort? port) async {
     print(port?.isOpen);
     // Close the port if it was opened successfully
@@ -70,6 +74,8 @@ class WinPaymentPosSerialCommunitaion {
     port = null; // Set the port to null after closing it
   }
 
+  // Function to send a request to the device
+  // This function sends a request to the device using the provided parameters
   Future<void> sendRequest(SerialPort? port, String sysTrace, String sysSN, String cusPhoneNo, double amount) async {
     final String orderAmountStr = amount.toStringAsFixed(2); // Make sure always have 2 decimal point in Order Amount
 
@@ -102,7 +108,7 @@ class WinPaymentPosSerialCommunitaion {
       0x03, // ETX
     ];
     final hexString = message.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
-    print(hexString);
+    // print('Hex String: $hexString');
     // Convert to Uint8List for transmission
     final messageBytes = Uint8List.fromList(message);
 
@@ -115,8 +121,9 @@ class WinPaymentPosSerialCommunitaion {
     port!.write(Uint8List.fromList([0x06]));
   }
 
-  Future<dynamic> listenForData(SerialPort? port) async {
+  Future<Map<dynamic, dynamic>> listenForData(SerialPort? port) async {
     List<int> buffer = [];
+    Map<dynamic, dynamic> returnData = {};
     _reader = SerialPortReader(port!);
     _subscription = _reader!.stream.listen((Uint8List data) {
       buffer.addAll(data); // Add incoming data to the buffer
@@ -127,7 +134,7 @@ class WinPaymentPosSerialCommunitaion {
       if (buffer.isNotEmpty && buffer.first == 0x06) {
         final hexString = buffer.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
         buffer.removeAt(0); // Remove the ACK from the buffer
-        // return hexString; // Exit early as we only need to process the ACK
+        returnData = {"ack": hexString}; // Exit early as we only need to process the ACK
       }
 
       // Check if we have enough data to process (STX + 2 bytes for length + data + ETX)
@@ -157,14 +164,14 @@ class WinPaymentPosSerialCommunitaion {
             }
 
             // Print the hex and decoded UTF-8 message
-            print('Hex String: $hexString');
-            print('Decoded String: $utf8String');
+            // print('Hex String: $hexString');
+            // print('Decoded String: $utf8String');
 
             // Parse JSON message if valid
             try {
               final Map<String, dynamic> jsonMessage = json.decode(utf8String);
-              print('Decoded JSON: $jsonMessage');
-
+              // print('Decoded JSON: $jsonMessage');
+              returnData = jsonMessage; // Store the parsed JSON message
               // Remove processed data from the buffer
               buffer.removeRange(0, startIdx + 3 + dataLength + 1);
               // Process the JSON message as needed
@@ -173,6 +180,7 @@ class WinPaymentPosSerialCommunitaion {
             } catch (e) {
               // Remove processed data from the buffer
               buffer.removeRange(0, startIdx + 3 + dataLength + 1);
+              returnData = {"Error parsing JSON": e.toString()};
               // Handle JSON parsing error
               // return 'Error parsing JSON: $e';
             }
@@ -185,14 +193,17 @@ class WinPaymentPosSerialCommunitaion {
       // return 'No complete message found.';
     }, onError: (error) {
       // Handle any errors that occur during data reception
-      print('Error receiving data: $error');
-      return 'Error receiving data: $error';
+      // print('Error receiving data: $error');
+      returnData = {"Error receiving data": error.toString()};
+      // Optionally, you can cancel the subscription here if needed
+      return returnData;
     }, onDone: () {
       // Handle the stream being closed
-      print('Data stream closed.');
+      // print('Data stream closed.');
       // _subscription?.cancel(); // Cancel the subscription when done
       // return 'Data stream closed.';
     }, cancelOnError: true); // Cancel the subscription on error
+    return returnData;
   }
 
   // Function to process the received JSON data
@@ -206,7 +217,7 @@ class WinPaymentPosSerialCommunitaion {
     if (byteBuffer.isNotEmpty && byteBuffer.first == 0x06) {
       final hexString = byteBuffer.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
       byteBuffer.removeAt(0); // Remove the ACK from the buffer
-      return {}; // Exit early as we only need to process the ACK
+      return {"ack": hexString}; // Exit early as we only need to process the ACK
     }
 
     // Check if we have enough data to process (STX + 2 bytes for length + data + ETX)
@@ -236,13 +247,13 @@ class WinPaymentPosSerialCommunitaion {
           }
 
           // Print the hex and decoded UTF-8 message
-          print('Hex String: $hexString');
-          print('Decoded String: $utf8String');
+          // print('Hex String: $hexString');
+          // print('Decoded String: $utf8String');
 
           // Parse JSON message if valid
           try {
             final Map<String, dynamic> jsonMessage = json.decode(utf8String);
-            print('Decoded JSON: $jsonMessage');
+            // print('Decoded JSON: $jsonMessage');
 
             // Remove processed data from the buffer
             byteBuffer.removeRange(0, startIdx + 3 + dataLength + 1);
