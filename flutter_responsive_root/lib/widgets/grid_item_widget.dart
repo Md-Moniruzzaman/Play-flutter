@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_responsive_root/models/place.dart';
 import 'package:flutter_responsive_root/pages/details_page.dart';
@@ -8,6 +9,7 @@ class GridItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fontSize = MediaQuery.of(context).size.width * 0.025;
     return Card(
       clipBehavior: Clip.antiAlias,
       elevation: 6,
@@ -17,8 +19,20 @@ class GridItemWidget extends StatelessWidget {
         child: GridTile(
           footer: GridTileBar(
             backgroundColor: Colors.black45,
-            title: Text(place.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            subtitle: Text(place.location ?? '', style: const TextStyle(color: Colors.white70)),
+            title: AutoSizeText(
+              place.name,
+              maxLines: 1,
+              minFontSize: 16,
+              maxFontSize: 24,
+              style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+            ),
+            subtitle: AutoSizeText(
+              place.location ?? '',
+              maxLines: 1,
+              minFontSize: 16,
+              maxFontSize: 24,
+              style: TextStyle(color: Colors.white70, fontSize: fontSize),
+            ),
             trailing: IconButton(
               icon: const Icon(Icons.favorite, color: Colors.red),
               onPressed: () {
@@ -32,26 +46,6 @@ class GridItemWidget extends StatelessWidget {
           ),
         ),
       ),
-
-      // child: Column(
-      //   crossAxisAlignment: CrossAxisAlignment.start,
-      //   children: [
-      //     Expanded(
-      //       child: ClipRRect(
-      //         borderRadius: const BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-      //         child: Image.network(place.imageUrl, fit: BoxFit.cover),
-      //       ),
-      //     ),
-      //     Padding(
-      //       padding: const EdgeInsets.all(8.0),
-      //       child: Text(place.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-      //     ),
-      //     Padding(
-      //       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      //       child: Text(place.description, style: const TextStyle(color: Colors.grey)),
-      //     ),
-      //   ],
-      // ),
     );
   }
 }

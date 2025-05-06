@@ -27,9 +27,16 @@ class DrawerWidget extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.end,
+
         children: [
-          const Text('Tour App', style: TextStyle(color: Colors.white, fontSize: 24)),
-          const SizedBox(height: 10),
+          AutoSizeText(
+            'Tour App',
+            minFontSize: 22,
+            maxFontSize: 30,
+            style: TextStyle(color: Colors.white, fontSize: fontSize),
+          ),
+          // const SizedBox(height: 8),
           AutoSizeText(
             'Explore the world',
             maxLines: 1,
@@ -49,7 +56,7 @@ class DrawerWidget extends StatelessWidget {
         allStates[index - 1],
         maxLines: 1,
         minFontSize: 16,
-        maxFontSize: 24,
+        maxFontSize: 28,
         style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w300),
       ),
       onTap: () {},
