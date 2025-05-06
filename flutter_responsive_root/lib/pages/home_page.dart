@@ -18,7 +18,8 @@ class HomePage extends StatelessWidget {
 
   Widget buildMobile() => PlaceGalleryWidget();
 
-  Widget buildTablet() => Container(color: Colors.red, child: const Center(child: Text('Tablet')));
+  Widget buildTablet() =>
+      Row(children: [Expanded(flex: 2, child: DrawerWidget()), Expanded(flex: 5, child: PlaceGalleryWidget())]);
 
   Widget buildDesktop() => Container(color: Colors.blue, child: const Center(child: Text('Desktop')));
 }

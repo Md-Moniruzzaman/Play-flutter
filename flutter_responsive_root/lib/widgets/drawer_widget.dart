@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_responsive_root/data/places.dart';
 import 'package:flutter_responsive_root/data/states.dart';
@@ -7,15 +8,16 @@ class DrawerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fontSize = MediaQuery.of(context).size.width * 0.024;
     return ListView.builder(
       itemCount: allStates.length + 1,
       itemBuilder: (context, index) {
-        return index == 0 ? buildHeader(context) : buildMenueList(context, index);
+        return index == 0 ? buildHeader(context, fontSize) : buildMenueList(context, index, fontSize);
       },
     );
   }
 
-  Widget buildHeader(BuildContext context) {
+  Widget buildHeader(BuildContext context, double fontSize) {
     return DrawerHeader(
       decoration: BoxDecoration(
         image: DecorationImage(
@@ -28,21 +30,29 @@ class DrawerWidget extends StatelessWidget {
         children: [
           const Text('Tour App', style: TextStyle(color: Colors.white, fontSize: 24)),
           const SizedBox(height: 10),
-          const Text(
+          AutoSizeText(
             'Explore the world',
-            style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w300),
+            maxLines: 1,
+            minFontSize: 16,
+            maxFontSize: 24,
+            style: TextStyle(color: Colors.white, fontSize: fontSize, fontWeight: FontWeight.w300),
           ),
         ],
       ),
     );
   }
 
-  Widget buildMenueList(BuildContext context, index) {
+  Widget buildMenueList(BuildContext context, index, double fontSize) {
     return ListTile(
       leading: const Icon(Icons.location_city),
-      title: Text(allStates[index - 1]),
-      onTap: () {
-      },
+      title: AutoSizeText(
+        allStates[index - 1],
+        maxLines: 1,
+        minFontSize: 16,
+        maxFontSize: 24,
+        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w300),
+      ),
+      onTap: () {},
     );
   }
 }
