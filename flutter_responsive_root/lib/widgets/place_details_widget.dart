@@ -10,15 +10,62 @@ class PlaceDetailsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double fontSize = MediaQuery.of(context).size.width * 0.025;
-    return ListView(
-      children: [
-        Image.network(place.imageUrl, height: 250, fit: BoxFit.cover),
-        buildTitle(place.name, fontSize),
-        builButtons(color, fontSize),
-        buildDescription(place.description, fontSize),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth <= 600) {
+          return buildSmallSize(fontSize);
+        } else {
+          return buildLargeSize(fontSize);
+        }
+      },
     );
+
+    // ListView(
+    //   children: [
+    //     Image.network(place.imageUrl, height: 250, fit: BoxFit.cover),
+    //     buildTitle(place.name, fontSize),
+    //     builButtons(color, fontSize),
+    //     buildDescription(place.description, fontSize),
+    //   ],
+    // );
   }
+
+  Widget buildSmallSize(double fontSize) => ListView(
+    children: [
+      Image.network(place.imageUrl, height: 250, fit: BoxFit.cover),
+      buildTitle(place.name, fontSize),
+      builButtons(color, fontSize),
+      buildDescription(place.description, fontSize),
+    ],
+  );
+
+  Widget buildLargeSize(double fontSize) => SingleChildScrollView(
+    child: Card(
+      clipBehavior: Clip.antiAlias,
+      // elevation: 8,
+      margin: const EdgeInsets.all(10.0),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [Image.network(place.imageUrl, fit: BoxFit.fill), buildTitle(place.name, fontSize)],
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [builButtons(color, fontSize), buildDescription(place.description, fontSize)],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 
   Widget buildTitle(String title, double fontSize) => Container(
     padding: const EdgeInsets.all(16.0),

@@ -2,10 +2,12 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_responsive_root/models/place.dart';
 import 'package:flutter_responsive_root/pages/details_page.dart';
+import 'package:flutter_responsive_root/widgets/responsive_widget.dart';
 
 class GridItemWidget extends StatelessWidget {
   final Place place;
-  const GridItemWidget({super.key, required this.place});
+  final ValueChanged<Place> onChangePlace;
+  const GridItemWidget({super.key, required this.place, required this.onChangePlace});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +17,18 @@ class GridItemWidget extends StatelessWidget {
       elevation: 6,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
       child: InkWell(
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => DetailsPage(place: place))),
+        onTap: () {
+          final isMobile = ResponsiveWidget.isMobile(context);
+          final isTablet = ResponsiveWidget.isTablet(context);
+
+          if (isMobile || isTablet) {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => DetailsPage(place: place)));
+          } else {
+            // Handle desktop navigation
+            // For example, you might want to show a dialog or a new page
+            onChangePlace(place);
+          }
+        },
         child: GridTile(
           footer: GridTileBar(
             backgroundColor: Colors.black45,
