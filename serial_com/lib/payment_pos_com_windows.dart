@@ -1,322 +1,324 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:typed_data';
+// // For use in Payment POS Communication with Windows
 
-import 'package:flutter/material.dart';
-import 'package:flutter_libserialport/flutter_libserialport.dart';
+// import 'dart:async';
+// import 'dart:convert';
+// import 'dart:typed_data';
 
-class PymentPostComWin extends StatefulWidget {
-  const PymentPostComWin({super.key});
+// import 'package:flutter/material.dart';
+// import 'package:flutter_libserialport/flutter_libserialport.dart';
 
-  @override
-  State<PymentPostComWin> createState() => _PymentPostComWinState();
-}
+// class PymentPostComWin extends StatefulWidget {
+//   const PymentPostComWin({super.key});
 
-class _PymentPostComWinState extends State<PymentPostComWin> {
-  final TextEditingController _sysTraceController = TextEditingController(text: 'hsldks3478257');
-  final TextEditingController _sysSNController = TextEditingController(text: 'hsl864s3478257');
-  final TextEditingController _transTypeController = TextEditingController(text: '3');
-  final TextEditingController _transAmountController = TextEditingController(text: '10000');
-  List availablePorts = [];
-  StreamSubscription<Uint8List>? _subscription;
-  SerialPortReader? _reader; // Use SerialPortReader for reading data
-  SerialPort? port;
-  String? selectedPort;
-  String logOutput = "";
-  String receivedData = "";
+//   @override
+//   State<PymentPostComWin> createState() => _PymentPostComWinState();
+// }
 
-  @override
-  void initState() {
-    super.initState();
-    initPorts();
-  }
+// class _PymentPostComWinState extends State<PymentPostComWin> {
+//   final TextEditingController _sysTraceController = TextEditingController(text: 'hsldks3478257');
+//   final TextEditingController _sysSNController = TextEditingController(text: 'hsl864s3478257');
+//   final TextEditingController _transTypeController = TextEditingController(text: '3');
+//   final TextEditingController _transAmountController = TextEditingController(text: '10000');
+//   List availablePorts = [];
+//   StreamSubscription<Uint8List>? _subscription;
+//   SerialPortReader? _reader; // Use SerialPortReader for reading data
+//   SerialPort? port;
+//   String? selectedPort;
+//   String logOutput = "";
+//   String receivedData = "";
 
-  void initPorts() {
-    setState(() => availablePorts = SerialPort.availablePorts);
-    logOutput += "Available ports: $availablePorts\n";
-    print(logOutput);
-    if (availablePorts.isNotEmpty) {
-      selectedPort = availablePorts[0];
-      print(selectedPort);
-    }
-  }
+//   @override
+//   void initState() {
+//     super.initState();
+//     initPorts();
+//   }
 
-  Future<void> _connectDevice() async {
-    if (selectedPort == null) {
-      logOutput += "No port selected.\n";
-      setState(() {});
-      return;
-    }
+//   void initPorts() {
+//     setState(() => availablePorts = SerialPort.availablePorts);
+//     logOutput += "Available ports: $availablePorts\n";
+//     print(logOutput);
+//     if (availablePorts.isNotEmpty) {
+//       selectedPort = availablePorts[0];
+//       print(selectedPort);
+//     }
+//   }
 
-    // Close previous connection if any
-    port?.close();
-    logOutput += "Previous connection closed.\n";
+//   Future<void> _connectDevice() async {
+//     if (selectedPort == null) {
+//       logOutput += "No port selected.\n";
+//       setState(() {});
+//       return;
+//     }
 
-    port = SerialPort(selectedPort!);
+//     // Close previous connection if any
+//     port?.close();
+//     logOutput += "Previous connection closed.\n";
 
-    port!.config = SerialPortConfig()
-      ..baudRate = 115200
-      ..bits = 8
-      ..stopBits = 1
-      ..parity = SerialPortParity.none
-      ..rts = SerialPortRts.on
-      ..dtr = SerialPortDtr.on;
+//     port = SerialPort(selectedPort!);
 
-    if (!port!.openReadWrite()) {
-      logOutput += "Failed to open port $selectedPort. Error: ${SerialPort.lastError}\n";
-      setState(() {});
-      return;
-    }
+//     port!.config = SerialPortConfig()
+//       ..baudRate = 115200
+//       ..bits = 8
+//       ..stopBits = 1
+//       ..parity = SerialPortParity.none
+//       ..rts = SerialPortRts.on
+//       ..dtr = SerialPortDtr.on;
 
-    print(port!.isOpen);
+//     if (!port!.openReadWrite()) {
+//       logOutput += "Failed to open port $selectedPort. Error: ${SerialPort.lastError}\n";
+//       setState(() {});
+//       return;
+//     }
 
-    logOutput += "Opened port $selectedPort\n";
+//     print(port!.isOpen);
 
-    _reader = SerialPortReader(port!);
-    _listenForData();
-    // _reader!.stream.listen((data) {
-    //   receivedData = String.fromCharCodes(data);
-    //   logOutput += "Received: $receivedData\n";
-    // });
+//     logOutput += "Opened port $selectedPort\n";
 
-    setState(() {});
-  }
+//     _reader = SerialPortReader(port!);
+//     _listenForData();
+//     // _reader!.stream.listen((data) {
+//     //   receivedData = String.fromCharCodes(data);
+//     //   logOutput += "Received: $receivedData\n";
+//     // });
 
-  void _listenForData() {
-    if (port == null || !port!.isOpen) {
-      logOutput += "Error: Serial port is not open.\n";
-      setState(() {});
-      return;
-    }
+//     setState(() {});
+//   }
 
-    List<int> buffer = [];
-    String recHex = '';
-    String jsonString = '';
-    String byteData = '';
-    Map<String, dynamic> cardRes = {};
+//   void _listenForData() {
+//     if (port == null || !port!.isOpen) {
+//       logOutput += "Error: Serial port is not open.\n";
+//       setState(() {});
+//       return;
+//     }
 
-    _subscription = _reader!.stream.listen((Uint8List data) {
-      buffer.addAll(data); // Add incoming data to the buffer
-      byteData = buffer.toString();
-      receivedData = String.fromCharCodes(data);
+//     List<int> buffer = [];
+//     String recHex = '';
+//     String jsonString = '';
+//     String byteData = '';
+//     Map<String, dynamic> cardRes = {};
 
-      if (buffer.isNotEmpty && buffer.first == 0x06) {
-        print("Received ACK (0x06) from device");
-        recHex = buffer.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
-        buffer.removeAt(0); // Remove the ACK from the buffer
-        return; // Exit early as we only need to process the ACK
-      }
+//     _subscription = _reader!.stream.listen((Uint8List data) {
+//       buffer.addAll(data); // Add incoming data to the buffer
+//       byteData = buffer.toString();
+//       receivedData = String.fromCharCodes(data);
 
-      while (buffer.length >= 4) {
-        int startIdx = buffer.indexOf(0x02); // Find STX (0x02)
-        int endIdx = buffer.indexOf(0x03); // Find ETX (0x03)
+//       if (buffer.isNotEmpty && buffer.first == 0x06) {
+//         print("Received ACK (0x06) from device");
+//         recHex = buffer.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
+//         buffer.removeAt(0); // Remove the ACK from the buffer
+//         return; // Exit early as we only need to process the ACK
+//       }
 
-        if (startIdx != -1 && endIdx != -1 && endIdx > startIdx) {
-          final lengthBytes = buffer.sublist(startIdx + 1, startIdx + 3);
-          final dataLength = (lengthBytes[0] << 8) | lengthBytes[1];
+//       while (buffer.length >= 4) {
+//         int startIdx = buffer.indexOf(0x02); // Find STX (0x02)
+//         int endIdx = buffer.indexOf(0x03); // Find ETX (0x03)
 
-          if (buffer.length >= startIdx + 3 + dataLength + 1) {
-            final completeMessage = buffer.sublist(startIdx + 3, startIdx + 3 + dataLength);
-            final hexString = completeMessage.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
-            recHex = hexString;
+//         if (startIdx != -1 && endIdx != -1 && endIdx > startIdx) {
+//           final lengthBytes = buffer.sublist(startIdx + 1, startIdx + 3);
+//           final dataLength = (lengthBytes[0] << 8) | lengthBytes[1];
 
-            try {
-              jsonString = utf8.decode(completeMessage, allowMalformed: true);
-              final Map<String, dynamic> jsonMessage = json.decode(jsonString);
-              print('Decoded JSON: $jsonMessage');
-              cardRes = jsonMessage;
-              receivedData += jsonString;
-              print(jsonString);
-              setState(() {});
+//           if (buffer.length >= startIdx + 3 + dataLength + 1) {
+//             final completeMessage = buffer.sublist(startIdx + 3, startIdx + 3 + dataLength);
+//             final hexString = completeMessage.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
+//             recHex = hexString;
 
-              /// Check Amount
+//             try {
+//               jsonString = utf8.decode(completeMessage, allowMalformed: true);
+//               final Map<String, dynamic> jsonMessage = json.decode(jsonString);
+//               print('Decoded JSON: $jsonMessage');
+//               cardRes = jsonMessage;
+//               receivedData += jsonString;
+//               print(jsonString);
+//               setState(() {});
 
-              if (cardRes['RespCode'] == "00") {
-                _sendAck();
-                setState(() {});
-              } else {
-                _sendAck();
+//               /// Check Amount
 
-                setState(() {});
-              }
-              setState(() {});
-            } catch (e) {
-              print('Error parsing JSON: $e');
-            }
+//               if (cardRes['RespCode'] == "00") {
+//                 _sendAck();
+//                 setState(() {});
+//               } else {
+//                 _sendAck();
 
-            buffer.removeRange(0, startIdx + 3 + dataLength + 1);
-          }
-        } else {
-          break; // Wait for more data
-        }
-      }
-    }, onError: (error) {
-      print("Error in serial port listener: $error");
-    }, onDone: () {
-      print("Serial port listener closed.");
-    });
-  }
+//                 setState(() {});
+//               }
+//               setState(() {});
+//             } catch (e) {
+//               print('Error parsing JSON: $e');
+//             }
 
-  Future<void> _sendAck() async {
-    port!.write(Uint8List.fromList([0x06])); // Send ACK
-  }
+//             buffer.removeRange(0, startIdx + 3 + dataLength + 1);
+//           }
+//         } else {
+//           break; // Wait for more data
+//         }
+//       }
+//     }, onError: (error) {
+//       print("Error in serial port listener: $error");
+//     }, onDone: () {
+//       print("Serial port listener closed.");
+//     });
+//   }
 
-  void sendData() {
-    if (port!.isOpen == false) {
-      logOutput += "Port is not open. Cannot send data.\n";
-      setState(() {});
-      return;
-    }
+//   Future<void> _sendAck() async {
+//     port!.write(Uint8List.fromList([0x06])); // Send ACK
+//   }
 
-    try {
-      // JSON data to be sent
-      final Map<String, dynamic> requestData = {
-        "SysTrace": _sysTraceController.text,
-        "SysSN": _sysSNController.text,
-        "TransType": _transTypeController.text,
-        "TransAmount": _transAmountController.text
-      };
+//   void sendData() {
+//     if (port!.isOpen == false) {
+//       logOutput += "Port is not open. Cannot send data.\n";
+//       setState(() {});
+//       return;
+//     }
 
-      // final Map<String, dynamic> requestData = {
-      //   "SysTrace": _sysTraceController.text,
-      //   "SysSN": _sysSNController.text,
-      //   "TransType": _transTypeController.text,
-      //   "TransAmount": _transAmountController.text,
-      //   "PhoneNum": "01645820113"
-      // };
+//     try {
+//       // JSON data to be sent
+//       final Map<String, dynamic> requestData = {
+//         "SysTrace": _sysTraceController.text,
+//         "SysSN": _sysSNController.text,
+//         "TransType": _transTypeController.text,
+//         "TransAmount": _transAmountController.text
+//       };
 
-      // Encode JSON data to bytes
-      final Uint8List dataBytes = utf8.encode(json.encode(requestData));
-      final int dataLength = dataBytes.length;
+//       // final Map<String, dynamic> requestData = {
+//       //   "SysTrace": _sysTraceController.text,
+//       //   "SysSN": _sysSNController.text,
+//       //   "TransType": _transTypeController.text,
+//       //   "TransAmount": _transAmountController.text,
+//       //   "PhoneNum": "01645820113"
+//       // };
 
-      // Calculate length in high and low bytes
-      final int lengthHigh = (dataLength >> 8) & 0xFF;
-      final int lengthLow = dataLength & 0xFF;
+//       // Encode JSON data to bytes
+//       final Uint8List dataBytes = utf8.encode(json.encode(requestData));
+//       final int dataLength = dataBytes.length;
 
-      // Construct the message (STX, Length, Data, ETX)
-      final message = <int>[
-        0x02, // STX
-        lengthHigh,
-        lengthLow,
-        ...dataBytes,
-        0x03, // ETX
-      ];
+//       // Calculate length in high and low bytes
+//       final int lengthHigh = (dataLength >> 8) & 0xFF;
+//       final int lengthLow = dataLength & 0xFF;
 
-      final messageBytes = Uint8List.fromList(message);
+//       // Construct the message (STX, Length, Data, ETX)
+//       final message = <int>[
+//         0x02, // STX
+//         lengthHigh,
+//         lengthLow,
+//         ...dataBytes,
+//         0x03, // ETX
+//       ];
 
-      // Convert message to hex for logging/debugging
-      final String hexString = messageBytes.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
-      logOutput += "Sending: $hexString\n";
+//       final messageBytes = Uint8List.fromList(message);
 
-      print(messageBytes);
-      print(hexString);
+//       // Convert message to hex for logging/debugging
+//       final String hexString = messageBytes.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
+//       logOutput += "Sending: $hexString\n";
 
-      // Send data to the serial port
-      port!.write(messageBytes);
-      logOutput += "Data sent successfully.\n";
-    } catch (e) {
-      logOutput += "Error sending data: $e\n";
-    }
+//       print(messageBytes);
+//       print(hexString);
 
-    setState(() {});
-  }
+//       // Send data to the serial port
+//       port!.write(messageBytes);
+//       logOutput += "Data sent successfully.\n";
+//     } catch (e) {
+//       logOutput += "Error sending data: $e\n";
+//     }
 
-  @override
-  void dispose() {
-    if (port!.isOpen) {
-      port!.close();
-    }
-    _sysTraceController.dispose();
-    _sysSNController.dispose();
-    _transTypeController.dispose();
-    _transAmountController.dispose();
-    super.dispose();
-  }
+//     setState(() {});
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("USB Communication"),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            DropdownButton<String>(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              value: selectedPort,
-              hint: const Text("Select Port"),
-              items: availablePorts
-                  .map<DropdownMenuItem<String>>((port) => DropdownMenuItem<String>(
-                        value: port,
-                        child: Text(port),
-                      ))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedPort = value;
-                });
-              },
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    port!.close();
-                  },
-                  child: const Text("Disconnect Device"),
-                ),
-                ElevatedButton(
-                  onPressed: _connectDevice,
-                  child: const Text("Connect to Device"),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: _sysTraceController,
-              decoration: const InputDecoration(labelText: 'SysTrace'),
-            ),
-            TextField(
-              controller: _sysSNController,
-              decoration: const InputDecoration(labelText: 'SysSN'),
-            ),
-            TextField(
-              controller: _transTypeController,
-              decoration: const InputDecoration(labelText: 'TransType'),
-            ),
-            TextField(
-              controller: _transAmountController,
-              decoration: const InputDecoration(labelText: 'TransAmount'),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: sendData,
-              child: const Text("Send Data"),
-            ),
-            const SizedBox(height: 16),
-            const Text("Received Response:"),
-            Text(
-              receivedData,
-              style: const TextStyle(fontFamily: "monospace"),
-            ),
-            const SizedBox(height: 16),
-            const Text("Log Output:"),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Text(
-                  logOutput,
-                  style: const TextStyle(fontFamily: "monospace"),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   void dispose() {
+//     if (port!.isOpen) {
+//       port!.close();
+//     }
+//     _sysTraceController.dispose();
+//     _sysSNController.dispose();
+//     _transTypeController.dispose();
+//     _transAmountController.dispose();
+//     super.dispose();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text("USB Communication"),
+//       ),
+//       body: Padding(
+//         padding: const EdgeInsets.all(16.0),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             DropdownButton<String>(
+//               padding: const EdgeInsets.symmetric(horizontal: 20),
+//               value: selectedPort,
+//               hint: const Text("Select Port"),
+//               items: availablePorts
+//                   .map<DropdownMenuItem<String>>((port) => DropdownMenuItem<String>(
+//                         value: port,
+//                         child: Text(port),
+//                       ))
+//                   .toList(),
+//               onChanged: (value) {
+//                 setState(() {
+//                   selectedPort = value;
+//                 });
+//               },
+//             ),
+//             const SizedBox(height: 20),
+//             Row(
+//               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//               children: [
+//                 ElevatedButton(
+//                   onPressed: () {
+//                     port!.close();
+//                   },
+//                   child: const Text("Disconnect Device"),
+//                 ),
+//                 ElevatedButton(
+//                   onPressed: _connectDevice,
+//                   child: const Text("Connect to Device"),
+//                 ),
+//               ],
+//             ),
+//             const SizedBox(height: 20),
+//             TextField(
+//               controller: _sysTraceController,
+//               decoration: const InputDecoration(labelText: 'SysTrace'),
+//             ),
+//             TextField(
+//               controller: _sysSNController,
+//               decoration: const InputDecoration(labelText: 'SysSN'),
+//             ),
+//             TextField(
+//               controller: _transTypeController,
+//               decoration: const InputDecoration(labelText: 'TransType'),
+//             ),
+//             TextField(
+//               controller: _transAmountController,
+//               decoration: const InputDecoration(labelText: 'TransAmount'),
+//             ),
+//             const SizedBox(height: 20),
+//             ElevatedButton(
+//               onPressed: sendData,
+//               child: const Text("Send Data"),
+//             ),
+//             const SizedBox(height: 16),
+//             const Text("Received Response:"),
+//             Text(
+//               receivedData,
+//               style: const TextStyle(fontFamily: "monospace"),
+//             ),
+//             const SizedBox(height: 16),
+//             const Text("Log Output:"),
+//             Expanded(
+//               child: SingleChildScrollView(
+//                 child: Text(
+//                   logOutput,
+//                   style: const TextStyle(fontFamily: "monospace"),
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }

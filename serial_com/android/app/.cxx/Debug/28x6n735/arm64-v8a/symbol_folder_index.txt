@@ -1,0 +1,1 @@
+D:\Self_Project\Play_Flutter\serial_com\build\app\intermediates\cxx\Debug\28x6n735\obj\arm64-v8a

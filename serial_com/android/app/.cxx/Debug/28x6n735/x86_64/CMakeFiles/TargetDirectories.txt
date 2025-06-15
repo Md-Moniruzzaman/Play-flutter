@@ -1,0 +1,2 @@
+D:/Self_Project/Play_Flutter/serial_com/android/app/.cxx/Debug/28x6n735/x86_64/CMakeFiles/edit_cache.dir
+D:/Self_Project/Play_Flutter/serial_com/android/app/.cxx/Debug/28x6n735/x86_64/CMakeFiles/rebuild_cache.dir

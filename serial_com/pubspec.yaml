@@ -14,7 +14,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   usb_serial: ^0.5.2 # for android
   # serial_communication: ^0.0.2
-  flutter_libserialport: ^0.4.0 # For windows
+  # flutter_libserialport: ^0.4.0 # For windows
   # libserialport: ^0.3.0+1
 
 dev_dependencies:
